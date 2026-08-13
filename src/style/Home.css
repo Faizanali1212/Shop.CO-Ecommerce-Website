@@ -469,41 +469,41 @@ main {
 
 @media (max-width: 1024px) {
   .hero__image {
-    height: 450px;
+    height: 400px;
     width: 100%;
     object-fit: cover;
+    margin-top: 76px;
   }
 }
 
 @media (max-width: 912px) {
   .hero__image {
-    height: 420px;
+    height: 320px;
     width: 100%;
     object-fit: cover;
-    margin-top: 80px;
+    margin-top: 120px;
   }
 }
 
 @media (max-width: 853px) {
   .hero__image {
-    height: 640px;
+    height: 650px;
     width: 100%;
     object-fit: cover;
     margin-top: 80px;
   }
 }
-
-@media (max-width: 375px) {
+@media (max-width: 540px) {
   .hero__image {
-    height: 300px;
+    height: 415px;
     width: 100%;
     object-fit: cover;
   }
 }
 
-@media (max-width: 414px) {
+@media (max-width: 440px) {
   .hero__image {
-    height: 305px;
+    height: 330px;
     width: 100%;
     object-fit: cover;
   }
@@ -517,9 +517,17 @@ main {
   }
 }
 
-@media (max-width: 440px) {
+@media (max-width: 414px) {
   .hero__image {
-    height: 330px;
+    height: 305px;
+    width: 100%;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 375px) {
+  .hero__image {
+    height: 300px;
     width: 100%;
     object-fit: cover;
   }
@@ -694,23 +702,23 @@ main {
 .browse-style__card {
   background: var(--color-gray-light);
   border-radius: var(--radius-lg);
-  padding: 48px 32px;
+  padding: 54px 34px;
 }
 
 .browse-style__title {
-  margin-bottom: 40px;
+  margin-bottom: 34px;
 }
 
 .browse-style__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 220px);
-  gap: 20px;
+  grid-template-rows: repeat(2, 190px);
+  gap: 14px;
 }
 
 .browse-style__item {
   position: relative;
-  border-radius: var(--radius-md);
+  border-radius: 20px;
   overflow: hidden;
   background: var(--color-white);
 }
@@ -728,9 +736,9 @@ main {
 
 .browse-style__label {
   position: absolute;
-  top: 24px;
-  left: 24px;
-  font-size: 24px;
+  top: 16px;
+  left: 20px;
+  font-size: 36px;
   font-weight: 700;
   color: var(--color-black);
   z-index: 2;
@@ -738,22 +746,22 @@ main {
 
 /* Asymmetric bento layout, matching the reference design */
 .style-casual {
-  grid-column: 1 / 3;
+  grid-column: 1;
   grid-row: 1;
 }
 
 .style-formal {
-  grid-column: 3;
+  grid-column: 2 / 4;
   grid-row: 1;
 }
 
 .style-party {
-  grid-column: 1;
+  grid-column: 1 / 3;
   grid-row: 2;
 }
 
 .style-gym {
-  grid-column: 2 / 4;
+  grid-column: 3;
   grid-row: 2;
 }
 
