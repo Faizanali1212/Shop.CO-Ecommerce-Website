@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ProductCard() {
+function Route() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function ProductCard() {
   )
 }
 
-export default ProductCard
+export default Route;

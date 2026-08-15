@@ -1,61 +1,64 @@
-import React from "react";
-import ProductCard from "./ProductCard";
+import React, { useState } from "react";
+import TopSellingProductCard from "../homeComponents/TopSellingProductCard.jsx";
 import "../../style/Home.css";
-// Mock data — replace with API call later
-const TOP_SELLING = [
-  {
-    id: 1,
-    title: "Vertical Striped Shirt",
-    image: "https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=500&q=80",
-    rating: 5,
-    ratingScore: 5,
-    price: 212,
-    oldPrice: 232,
-  },
-  {
-    id: 2,
-    title: "Courage Graphic T-shirt",
-    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&q=80",
-    rating: 4,
-    ratingScore: 4,
-    price: 145,
-  },
-  {
-    id: 3,
-    title: "Loose Fit Bermuda Shorts",
-    image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=500&q=80",
-    rating: 3,
-    ratingScore: 3,
-    price: 80,
-  },
-  {
-    id: 4,
-    title: "Faded Skinny Jeans",
-    image: "https://images.unsplash.com/photo-1475178626620-a4d074967452?w=500&q=80",
-    rating: 4.5,
-    ratingScore: 4.5,
-    price: 210,
-  },
-];
+import { useEffect } from "react";
+import axios from "axios";
 
-const TopSelling = () => {
+const topSellingProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [viewAll, setViewAll] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const topSellingFetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:4000/api/products/topSelling");
+      setProducts(response.data);
+    } catch (err) {
+      setError(err.message);
+      console.error("API Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    topSellingFetchProducts();
+  }, []);
+
+  // Initially show only 4 products.
+  // Click "View All" to toggle the list and show the remaining products.
+  const visibleProducts = viewAll ? products : products.slice(0, 4);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <section className="product-section">
       <div className="container">
         <h2 className="section-title">Top Selling</h2>
 
         <div className="product-grid">
-          {TOP_SELLING.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {visibleProducts.map((product) => {
+            return (
+              <div key={product.productId || product.id}>
+                <TopSellingProductCard product={product} />
+              </div>
+            );
+          })}
         </div>
 
-        <div className="product-section__footer">
-          <button className="btn btn-outline">View All</button>
-        </div>
+        {products.length > 4 && (
+          <div className="product-section__footer">
+            <button className="btn btn-outline" onClick={() => setViewAll(!viewAll)}>
+              {viewAll ? "View Less" : "View All"}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
 };
 
-export default TopSelling;
+export default topSellingProducts;
