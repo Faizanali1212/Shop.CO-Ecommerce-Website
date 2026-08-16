@@ -1,24 +1,30 @@
 import React from "react";
 import "../../style/Home.css";
+
+//images grid box;
+import image from  "../../images/image 11.png";
+import image2 from "../../images/image 12.png";
+import image3 from "../../images/image 13.png";
+import image4 from "../../images/image 14.png";
 const STYLES = [
   {
     name: "Casual",
-    image: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=600&q=80",
+    image:image,
     className: "style-casual",
   },
   {
     name: "Formal",
-    image: "https://images.unsplash.com/photo-1593032465175-481ac7f401a0?w=600&q=80",
+    image: image3,
     className: "style-formal",
   },
   {
     name: "Party",
-    image: "https://images.unsplash.com/photo-1519669556878-63bdad8a1a49?w=600&q=80",
+    image: image2,
     className: "style-party",
   },
   {
     name: "Gym",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
+    image: image4,
     className: "style-gym",
   },
 ];

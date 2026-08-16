@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import TopSellingProductCard from "../homeComponents/TopSellingProductCard.jsx";
-import "../../style/Home.css";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ProductCard from "./ProductCard";
+import "../../style/Home.css";
 
-const topSellingProducts = () => {
+const TopSellingProducts = () => {
   const [products, setProducts] = useState([]);
   const [viewAll, setViewAll] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Nayi simple API call
   const topSellingFetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:4000/api/products/topSelling");
+      const response = await axios.get("http://localhost:4000/api/products/top-selling");
       setProducts(response.data);
     } catch (err) {
       setError(err.message);
@@ -27,8 +27,6 @@ const topSellingProducts = () => {
     topSellingFetchProducts();
   }, []);
 
-  // Initially show only 4 products.
-  // Click "View All" to toggle the list and show the remaining products.
   const visibleProducts = viewAll ? products : products.slice(0, 4);
 
   if (loading) return <p>Loading...</p>;
@@ -40,13 +38,11 @@ const topSellingProducts = () => {
         <h2 className="section-title">Top Selling</h2>
 
         <div className="product-grid">
-          {visibleProducts.map((product) => {
-            return (
-              <div key={product.productId || product.id}>
-                <TopSellingProductCard product={product} />
-              </div>
-            );
-          })}
+          {visibleProducts.map((product) => (
+            <div key={product.id || product.productId}>
+              <ProductCard product={product} />
+            </div>
+          ))}
         </div>
 
         {products.length > 4 && (
@@ -61,4 +57,4 @@ const topSellingProducts = () => {
   );
 };
 
-export default topSellingProducts;
+export default TopSellingProducts;

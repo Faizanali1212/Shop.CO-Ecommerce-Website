@@ -10,7 +10,6 @@ import Footer from "../components/homeComponents/Footer.jsx";
 function Home() {
   return (
     <div className="app">
-      <Header />
       <main>
         <Hero />
         <NewArrivals />
@@ -18,7 +17,6 @@ function Home() {
         <BrowseByStyle />
         <Testimonials />
       </main>
-      <Footer />
     </div>
   );
 }

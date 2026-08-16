@@ -242,6 +242,17 @@ main {
 .navbar__icon-btn {
   color: var(--color-black);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+}
+
+.navbar__search-trigger {
+  display: none;
 }
 
 .navbar__hamburger {
@@ -275,6 +286,10 @@ main {
 
   .navbar__search {
     display: none;
+  }
+
+  .navbar__search-trigger {
+    display: flex;
   }
 
   .navbar__hamburger {
@@ -702,7 +717,7 @@ main {
 .browse-style__card {
   background: var(--color-gray-light);
   border-radius: var(--radius-lg);
-  padding: 54px 34px;
+  padding: 60px 40px;
 }
 
 .browse-style__title {
@@ -711,8 +726,8 @@ main {
 
 .browse-style__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 190px);
+  grid-template-columns: repeat(3, 3fr);
+  grid-template-rows: repeat(2, 300px);
   gap: 14px;
 }
 
@@ -1309,11 +1324,13 @@ main {
 
 .star-icon--full,
 .star-icon--half {
-  color: #ffc700;
+  color: #ffc700 !important;
+  fill: #ffc700 !important;
 }
 
 .star-icon--empty {
-  color: #e0e0e0;
+  color: #e0e0e0 !important;
+  fill: #e0e0e0 !important;
 }
 
 .testimonial-card__name-row {

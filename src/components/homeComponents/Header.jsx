@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../../style/Home.css";
 import {
@@ -10,10 +11,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const NAV_LINKS = [
-  { label: "Shop", href: "#" },
-  { label: "On Sale", href: "#" },
-  { label: "New Arrivals", href: "#new-arrivals" },
-  { label: "Brands", href: "#" },
+  { label: "Shop", to: "/" },
+  { label: "On Sale", to: "/" },
+  { label: "New Arrivals", to: "/#new-arrivals" },
+  { label: "Brands", to: "/" },
+  { label: "Casual", to: "/catagory" },
+  { label: "Carts", to: "/cart" },
 ];
 
 const Header = () => {
@@ -57,7 +60,7 @@ const Header = () => {
         <ul className="navbar__links navbar__links--desktop">
           {NAV_LINKS.map((link) => (
             <li key={link.label}>
-              <a href={link.href}>{link.label}</a>
+              <Link to={link.to}>{link.label}</Link>
             </li>
           ))}
         </ul>
@@ -68,6 +71,14 @@ const Header = () => {
         </div>
 
         <div className="navbar__icons">
+          <button
+            type="button"
+            aria-label="Search products"
+            className="navbar__icon-btn navbar__search-trigger"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          >
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </button>
           <button aria-label="Cart" className="navbar__icon-btn">
             <FontAwesomeIcon icon={faCartShopping} />
           </button>
@@ -86,9 +97,9 @@ const Header = () => {
           <ul className="mobile-menu__links">
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
-                <a href={link.href} onClick={() => setIsMobileMenuOpen(false)}>
+                <Link to={link.to} onClick={() => setIsMobileMenuOpen(false)}>
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

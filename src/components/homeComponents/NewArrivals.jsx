@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import NewArrivalsProductCard from "./NewArrivalsProductCard.jsx";
+import ProductCard from "./ProductCard";
 import "../../style/Home.css";
 import axios from "axios";
 
@@ -9,10 +9,11 @@ const NewArrivals = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Updated Simple API Endpoint
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:4000/api/products");
+      const response = await axios.get("http://localhost:4000/api/products/new-arrivals");
       setProducts(response.data);
     } catch (err) {
       setError(err.message);
@@ -26,8 +27,6 @@ const NewArrivals = () => {
     fetchProducts();
   }, []);
 
-  // Initially show only 4 products.
-  // When user clicks "View All", set viewAll to true so all products render.
   const visibleProducts = viewAll ? products : products.slice(0, 4);
 
   if (loading) return <p>Loading...</p>;
@@ -40,8 +39,8 @@ const NewArrivals = () => {
 
         <div className="product-grid">
           {visibleProducts.map((product) => (
-            <div key={product.id}>
-              <NewArrivalsProductCard product={product} />
+            <div key={product.id || product.productId}>
+              <ProductCard product={product} />
             </div>
           ))}
         </div>
