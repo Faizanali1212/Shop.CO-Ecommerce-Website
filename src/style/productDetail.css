@@ -102,7 +102,6 @@ body {
     width: 120px;
     flex-shrink: 0;
     order: 1;
-    /* Left side */
 }
 
 .pdp__thumb {
@@ -130,7 +129,6 @@ body {
 /* Main Image */
 .pdp__main-image {
     order: 2;
-    /* Right side of thumbnails */
     flex: 1;
     width: 100%;
     aspect-ratio: 1 / 1.05;
@@ -325,7 +323,6 @@ body {
     background: var(--pdp-surface);
     border-radius: 999px;
     flex-shrink: 0;
-    /* Prevents counter from shrinking */
 }
 
 .pdp__qty-selector button {
@@ -341,7 +338,6 @@ body {
     font-weight: 600;
 }
 
-/* ADD TO CART BUTTON ENFORCED STYLING */
 .pdp__add-to-cart {
     flex: 1 !important;
     height: 52px !important;
@@ -390,8 +386,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     margin-bottom: 24px;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .pdp__reviews-title {
@@ -406,55 +404,55 @@ body {
     font-weight: 400;
 }
 
-/* Write a Review Button Fix */
-.pdp__write-review-btn {
-  background-color: #000000 !important; /* Black background */
-  color: #ffffff !important;            /* White text */
-  border: none;
-  border-radius: 62px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.pdp__write-review-btn:hover {
-  background-color: #333333 !important;
-}
-
-/* Actions Row container layout check */
 .pdp__reviews-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Round Filter Icon Button Fix */
+/* Round Filter Icon Button */
 .pdp__icon-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 /* Dropdown Button Fix */
 .pdp__dropdown-btn {
-  background-color: #f0f0f0;
-  border-radius: 62px;
-  padding: 12px 20px;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  cursor: pointer;
+    background-color: #f0f0f0;
+    border-radius: 62px;
+    padding: 12px 20px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Write a Review Button Fix */
+.pdp__write-review-btn {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 62px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.pdp__write-review-btn:hover {
+    background-color: #333333 !important;
 }
 
 .pdp__reviews-grid {
@@ -534,7 +532,6 @@ body {
         width: 100%;
     }
 
-    /* Mobile Gallery: Main Image (Top) & Compact Thumbnails (Bottom) */
     .pdp__gallery {
         display: flex;
         flex-direction: column;
@@ -544,7 +541,6 @@ body {
 
     .pdp__main-image {
         order: 1;
-        /* Main Image on Top */
         width: 100%;
         aspect-ratio: 1 / 1;
         border-radius: 20px;
@@ -552,7 +548,6 @@ body {
 
     .pdp__thumbs {
         order: 2;
-        /* Thumbnails Row under Main Image */
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -587,7 +582,6 @@ body {
         padding: 10px 0;
     }
 
-    /* Mobile Action Row */
     .pdp__action-row {
         gap: 10px !important;
     }
@@ -602,63 +596,29 @@ body {
         padding: 0 16px !important;
     }
 
-    .pdp__reviews-grid {
-        grid-template-columns: 1fr;
+    .pdp__reviews-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .pdp__reviews-actions {
+        width: auto;
+        gap: 8px;
     }
 
     .pdp__dropdown-btn {
-        display: none;
+        display: flex; /* Mobile par display block/flex rakha taake button na chupay */
+        padding: 8px 12px;
+        font-size: 12px;
     }
-}
 
+    .pdp__write-review-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
 
-/* Write a Review Button Fix */
-.pdp__write-review-btn {
-  background-color: #000000 !important; /* Black background */
-  color: #ffffff !important;            /* White text */
-  border: none;
-  border-radius: 62px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.pdp__write-review-btn:hover {
-  background-color: #333333 !important;
-}
-
-/* Actions Row container layout check */
-.pdp__reviews-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Round Filter Icon Button Fix */
-.pdp__icon-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-/* Dropdown Button Fix */
-.pdp__dropdown-btn {
-  background-color: #f0f0f0;
-  border-radius: 62px;
-  padding: 12px 20px;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  cursor: pointer;
+    .pdp__reviews-grid {
+        grid-template-columns: 1fr;
+    }
 }
