@@ -80,7 +80,7 @@ const getImageUrl = (rawImage) => {
 
   // Strip unwanted relative path markers
   let cleanPath = rawImage.replace(/^(\.\.\/)+/, "").replace(/^\/+/, "");
-  return encodeURI(`http://localhost:4000/${cleanPath}`);
+  return encodeURI(`https://shop-co-ecommerce-backend.vercel.app/${cleanPath}`);
 };
 
 /* ==========================================================================
@@ -101,7 +101,7 @@ const ProductDetailPage = () => {
   /* ---------------- API Call ---------------- */
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/api/products/${id}`)
+      .get(`https://shop-co-ecommerce-backend.vercel.app/api/products/${id}`)
       .then((res) => {
         const data = res.data;
         setProduct(data);

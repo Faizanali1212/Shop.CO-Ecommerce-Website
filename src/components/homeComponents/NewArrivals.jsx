@@ -13,7 +13,7 @@ const NewArrivals = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:4000/api/products/new-arrivals");
+      const response = await axios.get("https://shop-co-ecommerce-backend.vercel.app/api/products/new-arrivals");
       setProducts(response.data);
     } catch (err) {
       setError(err.message);

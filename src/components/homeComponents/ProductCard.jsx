@@ -17,7 +17,7 @@ function ProductCard({ product }) {
 
   if (rawImage && !rawImage.startsWith('http')) {
     let cleanPath = rawImage.replace(/^(\.\.\/)+/, '').replace(/^\/+/, '');
-    finalImageUrl = `http://localhost:4000/${cleanPath}`;
+    finalImageUrl = `https://shop-co-ecommerce-backend.vercel.app/${cleanPath}`;
   }
   finalImageUrl = encodeURI(finalImageUrl);
   const full = Math.floor(ratingScore);

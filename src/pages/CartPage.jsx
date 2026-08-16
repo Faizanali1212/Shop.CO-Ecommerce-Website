@@ -90,7 +90,7 @@ export default function CartPage() {
         if (items.length === 0) return;
 
         try {
-            await axios.post("http://localhost:4000/api/save-user", {
+            await axios.post("https://shop-co-ecommerce-backend.vercel.app/api/save-user", {
                 items,
                 total,
                 createdAt: new Date().toISOString(),

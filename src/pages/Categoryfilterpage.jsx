@@ -19,7 +19,7 @@ const getImageUrl = (rawImage) => {
     if (!rawImage) return "https://via.placeholder.com/300x300?text=No+Image";
     if (rawImage.startsWith("http")) return encodeURI(rawImage);
     let cleanPath = rawImage.replace(/^(\.\.\/)+/, "").replace(/^\/+/, "");
-    return encodeURI(`http://localhost:4000/${cleanPath}`);
+    return encodeURI(`https://shop-co-ecommerce-backend.vercel.app/${cleanPath}`);
 };
 
 /* Static Filter Options */
@@ -54,7 +54,7 @@ export default function CategoryFilterPage() {
     /* --- API Call --- */
     useEffect(() => {
         axios
-            .get("http://localhost:4000/api/all-products/")
+            .get("https://shop-co-ecommerce-backend.vercel.app/api/all-products/")
                 .then((res) => {
                     setProducts(res.data);
                     setLoading(false);

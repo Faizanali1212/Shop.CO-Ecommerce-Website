@@ -13,7 +13,7 @@ const TopSellingProducts = () => {
   const topSellingFetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:4000/api/products/top-selling");
+      const response = await axios.get("https://shop-co-ecommerce-backend.vercel.app/api/products/top-selling");
       setProducts(response.data);
     } catch (err) {
       setError(err.message);
