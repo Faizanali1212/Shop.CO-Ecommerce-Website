@@ -6,7 +6,6 @@ import { faStar as faStarEmpty } from "@fortawesome/free-regular-svg-icons";
 import '../../style/newArrivalsProduct.css';
 
 function ProductCard({ product }) {
-  // Safe Fallback Keys Mapping
   const id = product.id || product.productId;
   const title = product.name || product.productName;
   const rawImage = product.image || product.productImage || '';
@@ -14,32 +13,24 @@ function ProductCard({ product }) {
   const originalPrice = product.originalPrice;
   const discount = product.discount || product.discountPercentage;
   const ratingScore = Number(product.rating || 5);
-
-  // 1. IMAGE PATH FIX: Full URL guarantee karna aur underscores/spaces clean format karna
   let finalImageUrl = rawImage;
 
   if (rawImage && !rawImage.startsWith('http')) {
-    // Relative path clean karo (agar '../' ya leading slashes hain)
     let cleanPath = rawImage.replace(/^(\.\.\/)+/, '').replace(/^\/+/, '');
     finalImageUrl = `http://localhost:4000/${cleanPath}`;
   }
-
-  // 2. Space/Special characters Safety
   finalImageUrl = encodeURI(finalImageUrl);
-
-  // Star Rating Calculation
   const full = Math.floor(ratingScore);
   const half = ratingScore - full >= 0.5 ? 1 : 0;
   const empty = Math.max(0, 5 - full - half);
-
   return (
     <Link to={`/product/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <article className="product-card">
         <div className="product-card__image-box">
-          <img 
-            className="product-card__image" 
-            src={finalImageUrl} 
-            alt={title} 
+          <img
+            className="product-card__image"
+            src={finalImageUrl}
+            alt={title}
             onError={(e) => {
               console.log("Image load fail for path:", finalImageUrl);
             }}

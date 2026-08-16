@@ -4,9 +4,9 @@ import { faStar as faStarSolid, faStarHalfStroke } from "@fortawesome/free-solid
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
 /**
- * Renders a row of star icons using Font Awesome.
- * @param {number} rating - value from 0-5, supports halves (e.g. 4.5)
- * @param {number} size - icon font-size in px
+
+ * @param {number} rating 
+ * @param {number} size - 
  */
 const StarRating = ({ rating = 5, size = 16 }) => {
   const stars = [];

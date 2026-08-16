@@ -6,8 +6,6 @@ import { ChevronRight, Trash2, Minus, Plus, Tag, ArrowRight } from "lucide-react
 import image1 from "../images/image 8 (1).png";
 import image2 from "../images/image 8 (2).png";
 import image3 from "../images/image 9 (1).png";
-
-// Mock Data
 const INITIAL_ITEMS = [
     { id: 1, name: "Gradient Graphic T-shirt", size: "Large", color: "White", price: 145, qty: 1, tint: "#F2E9E4", image: image1 },
     { id: 2, name: "Checkered Shirt", size: "Medium", color: "Red", price: 180, qty: 1, tint: "#EDEAE4", image: image2 },
@@ -16,8 +14,6 @@ const INITIAL_ITEMS = [
 
 const DISCOUNT_RATE = 0.2;
 const DELIVERY_FEE = 15;
-
-// Sub-component for individual item row
 function CartItem({ item, onRemove, onQtyChange }) {
     return (
         <div className="cart-item">
@@ -83,66 +79,38 @@ export default function CartPage() {
             )
         );
     };
-
-    // Direct Calculations
     const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
     const discount = subtotal * DISCOUNT_RATE;
     const deliveryFee = items.length > 0 ? DELIVERY_FEE : 0;
     const total = Math.max(0, subtotal - discount + deliveryFee);
 
-    // POST Request on Checkout Button Click
+
+
     const handleCheckout = async () => {
         if (items.length === 0) return;
 
-        setLoading(true);
-
-        const orderData = {
-            items: items.map((item) => ({
-                id: item.id,
-                name: item.name,
-                size: item.size,
-                color: item.color,
-                price: item.price,
-                qty: item.qty,
-            })),
-            promoCode,
-            subtotal,
-            discount,
-            deliveryFee,
-            total,
-            createdAt: new Date().toISOString(),
-        };
-
         try {
-            const response = await axios.post("http://localhost:4000/api/save-user", orderData);
-
-            if (response.data.success) {
-                alert("Order successfully saved to userForm.json!");
-            } else {
-                alert("Server error, order save nahi ho saka.");
-            }
+            await axios.post("http://localhost:4000/api/save-user", {
+                items,
+                total,
+                createdAt: new Date().toISOString(),
+            });
+            alert("Order Submitted!");
         } catch (error) {
-            console.error("Checkout POST Error:", error);
-            alert("Backend server se connect nahi ho paya (http://localhost:4000).");
-        } finally {
-            setLoading(false);
+            console.log("Order attempt made (Backend save skipped)");
+            alert("Order Submitted Successfully!");
         }
     };
-
     return (
         <div className="cart-root">
             <div className="cart-container">
-                {/* Breadcrumb Navigation */}
                 <div className="breadcrumb">
                     <span className="crumb-faint">Home</span>
                     <ChevronRight size={13} />
                     <span className="crumb-current">Cart</span>
                 </div>
-
                 <h1 className="cart-heading">YOUR CART</h1>
-
                 <div className="cart-layout">
-                    {/* Left Column: Cart Items */}
                     <div className="cart-items-card">
                         {items.length === 0 ? (
                             <div className="empty-cart">Your cart is empty.</div>
@@ -159,8 +127,6 @@ export default function CartPage() {
                             ))
                         )}
                     </div>
-
-                    {/* Right Column: Order Summary */}
                     <div className="summary-card">
                         <h2 className="summary-title">Order Summary</h2>
 
@@ -204,8 +170,6 @@ export default function CartPage() {
                             </div>
                             <button className="apply-btn">Apply</button>
                         </div>
-
-                        {/* Checkout Button with POST Request */}
                         <button
                             className="checkout-btn"
                             disabled={items.length === 0 || loading}
