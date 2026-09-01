@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../../style/Home.css";
 
 //images grid box;
@@ -40,13 +41,15 @@ const BrowseByStyle = () => {
 
           <div className="browse-style__grid">
             {STYLES.map((style) => (
-              <div
+              <Link
+                to="/catagory"
                 key={style.name}
                 className={`browse-style__item ${style.className}`}
+                style={{ textDecoration: "none", color: "inherit" }}
               >
                 <img src={style.image} alt={style.name} />
                 <span className="browse-style__label">{style.name}</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

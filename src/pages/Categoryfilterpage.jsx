@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import "../style/CategoryFilterPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,16 +14,14 @@ import {
     faArrowRight,
     faCheck,
 } from "@fortawesome/free-solid-svg-icons";
+import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
 
-/* Helper for dynamic images */
-const getImageUrl = (rawImage) => {
-    if (!rawImage) return "https://via.placeholder.com/300x300?text=No+Image";
-    if (rawImage.startsWith("http")) return encodeURI(rawImage);
-    let cleanPath = rawImage.replace(/^(\.\.\/)+/, "").replace(/^\/+/, "");
-    return encodeURI(`https://shop-co-ecommerce-backend.vercel.app/${cleanPath}`);
-};
-
-/* Static Filter Options */
+/**
+ * ==============================================================================
+ * STATIC FILTER OPTIONS
+ * ==============================================================================
+ * Filters sidebar ke static options (Categories, Colors, Sizes, Dress Styles)
+ */
 const CATEGORIES = ["T-shirts", "Shorts", "Shirts", "Hoodie", "Jeans"];
 const COLORS = [
     "#22C55E", "#EF4444", "#F0C808", "#F97316", "#22D3EE",
@@ -31,16 +30,28 @@ const COLORS = [
 const SIZES = ["XX-Small", "X-Small", "Small", "Medium", "Large", "X-Large", "3X-Large", "4X-Large"];
 const DRESS_STYLES = ["Casual", "Formal", "Party", "Gym"];
 
+/**
+ * ==============================================================================
+ * CategoryFilterPage Component
+ * ==============================================================================
+ * YEH PAGE KYA KARTA HAI:
+ * 1. Backend se all products fetch karta hai (/api/all-products/).
+ * 2. Left side par Filter sidebar (Price range, Colors, Sizes, Styles) render karta hai.
+ * 3. Right side par 3-column product grid render karta hai.
+ * 4. Har product card par click karne se user product detail page (/product/:id) par jata hai.
+ */
 export default function CategoryFilterPage() {
-    /* --- States --- */
+    /* --- 1. Main State Management --- */
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false); // Mobile filter popup drawer
 
-    // Filter States
+    // Filter States: Active selections
     const [activeColor, setActiveColor] = useState("#3B82F6");
     const [activeSize, setActiveSize] = useState("Large");
-    const [priceValues, setPriceValues] = useState([50, 200]);
+    const [priceValues, setPriceValues] = useState([50, 200]); // Dual range slider [min, max]
+    
+    // Accordion Sections Open/Close state
     const [openSections, setOpenSections] = useState({
         price: true,
         colors: true,
@@ -48,24 +59,24 @@ export default function CategoryFilterPage() {
         dressStyle: true,
     });
 
-    // Pagination State
+    // Pagination State: Currently active page number
     const [page, setPage] = useState(1);
 
-    /* --- API Call --- */
+    /* --- 2. API Call to Fetch All Products --- */
     useEffect(() => {
         axios
             .get("https://shop-co-ecommerce-backend.vercel.app/api/all-products/")
-                .then((res) => {
-                    setProducts(res.data);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Error fetching products:", err);
-                    setLoading(false);
-                });
+            .then((res) => {
+                setProducts(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching all products:", err);
+                setLoading(false);
+            });
     }, []);
 
-    /* --- Handlers --- */
+    /* --- 3. Filter Accordion Toggle Handler --- */
     const toggleSection = (sectionKey) => {
         setOpenSections((prev) => ({
             ...prev,
@@ -73,9 +84,10 @@ export default function CategoryFilterPage() {
         }));
     };
 
+    // Range slider track percentage calculation for CSS styling
     const pct = useCallback((v) => ((v - 0) / (250 - 0)) * 100, []);
 
-    /* --- Internal UI Renderer: Filters Card --- */
+    /* --- 4. Sidebar / Mobile Drawer UI Renderer --- */
     const renderFiltersCard = (isMobile = false) => (
         <div className="filters-card">
             <div className="filters-head">
@@ -89,7 +101,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Categories */}
+            {/* Categories List */}
             <div className="cat-list">
                 {CATEGORIES.map((c) => (
                     <button key={c} className="cat-item">
@@ -99,7 +111,7 @@ export default function CategoryFilterPage() {
                 ))}
             </div>
 
-            {/* Price Section */}
+            {/* Price Filter Section with Dual Range Sliders */}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("price")}>
                     <span>Price</span>
@@ -146,7 +158,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Colors Section */}
+            {/* Colors Swatches Section */}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("colors")}>
                     <span>Colors</span>
@@ -182,7 +194,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Size Section */}
+            {/* Size Options Section */}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("size")}>
                     <span>Size</span>
@@ -238,7 +250,7 @@ export default function CategoryFilterPage() {
                     <span className="current">Casual</span>
                 </div>
 
-                {/* Header Row */}
+                {/* Header Row: Title, Filter button on mobile, sorting selector */}
                 <div className="header-row">
                     <div className="title-wrap">
                         <h1>Casual</h1>
@@ -267,7 +279,7 @@ export default function CategoryFilterPage() {
                     </div>
                 </div>
 
-                {/* Main Grid Layout */}
+                {/* Main Grid Layout: Desktop Sidebar + Products Grid */}
                 <div className="layout">
                     {/* Desktop Sidebar */}
                     <aside className="sidebar-desktop">{renderFiltersCard(false)}</aside>
@@ -278,56 +290,82 @@ export default function CategoryFilterPage() {
                             <div style={{ padding: "40px", textAlign: "center" }}>Loading products...</div>
                         ) : (
                             <div className="product-grid">
-                                {products.map((p) => {
+                                {products.map((p, index) => {
+                                    // Schema Extraction with Fallbacks
+                                    const id = p.id ?? p._id ?? index;
+                                    const title = p.ProductTitle || p.title || p.name || "Product";
+                                    const price = p.Price ?? p.price ?? 0;
+                                    const rating = Number(p.rating ?? 4.5);
                                     const imgPath =
+                                        p.Image ||
                                         p.image ||
-                                        (p.images && p.images[0]) ||
-                                        "https://via.placeholder.com/300x300?text=Product";
+                                        (Array.isArray(p.images) && p.images[0]) ||
+                                        "";
+                                    const imgUrl = getProductImageUrl(imgPath);
 
                                     return (
-                                        <div key={p.id} className="product-card">
-                                            <div className="product-image">
-                                                <img
-                                                    src={getImageUrl(imgPath)}
-                                                    alt={p.name}
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = "https://via.placeholder.com/300x300?text=Product";
-                                                    }}
-                                                />
-                                            </div>
-                                            <h4 className="product-name">{p.name}</h4>
-
-                                            {/* Stars Row */}
-                                            <div className="stars">
-                                                {[1, 2, 3, 4, 5].map((starIdx) => (
-                                                    <FontAwesomeIcon
-                                                        key={starIdx}
-                                                        icon={faStarSolid}
-                                                        style={{
-                                                            color: starIdx <= Math.round(p.rating || 4.5) ? "#FFC633" : "#D1D1D1",
-                                                            fontSize: "13px",
+                                        // Product Card Link to /product/:id
+                                        <Link
+                                            to={`/product/${id}`}
+                                            key={p._id || p.id || index}
+                                            style={{ textDecoration: "none", color: "inherit" }}
+                                        >
+                                            <div className="product-card">
+                                                {/* Image Box */}
+                                                <div className="product-image">
+                                                    <img
+                                                        src={imgUrl}
+                                                        alt={title}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = PLACEHOLDER_IMAGE;
                                                         }}
                                                     />
-                                                ))}
-                                                <span className="stars-score">{Number(p.rating || 4.5).toFixed(1)}/5</span>
-                                            </div>
+                                                </div>
 
-                                            {/* Price Row */}
-                                            <div className="price-row">
-                                                <span className="price-current">${p.price}</span>
-                                                {p.originalPrice && <span className="price-old">${p.originalPrice}</span>}
-                                                {p.discountPercentage && (
-                                                    <span className="discount-badge">-{p.discountPercentage}%</span>
-                                                )}
+                                                {/* Product Name */}
+                                                <h4 className="product-name">{title}</h4>
+
+                                                {/* Stars Rating Row */}
+                                                <div className="stars">
+                                                    {[1, 2, 3, 4, 5].map((starIdx) => (
+                                                        <FontAwesomeIcon
+                                                            key={starIdx}
+                                                            icon={faStarSolid}
+                                                            style={{
+                                                                color:
+                                                                    starIdx <= Math.round(rating)
+                                                                        ? "#FFC633"
+                                                                        : "#D1D1D1",
+                                                                fontSize: "13px",
+                                                            }}
+                                                        />
+                                                    ))}
+                                                    <span className="stars-score">
+                                                        {rating.toFixed(1)}/5
+                                                    </span>
+                                                </div>
+
+                                                {/* Price Row */}
+                                                <div className="price-row">
+                                                    <span className="price-current">${price}</span>
+                                                    {p.originalPrice && (
+                                                        <span className="price-old">${p.originalPrice}</span>
+                                                    )}
+                                                    {(p.discount || p.discountPercentage) && (
+                                                        <span className="discount-badge">
+                                                            -{p.discount || p.discountPercentage}%
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        </Link>
                                     );
                                 })}
                             </div>
                         )}
 
-                        {/* Pagination */}
+                        {/* Pagination Bar */}
                         <div className="pagination">
                             <button
                                 className="page-nav"
@@ -362,7 +400,7 @@ export default function CategoryFilterPage() {
                 </div>
             </div>
 
-            {/* Mobile Drawer Filter */}
+            {/* Mobile Drawer Filter Popup */}
             {drawerOpen && (
                 <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
                     <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>

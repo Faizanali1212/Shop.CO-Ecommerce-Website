@@ -79,9 +79,9 @@ const Header = () => {
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
-          <button aria-label="Cart" className="navbar__icon-btn">
+          <Link to="/cart" aria-label="Cart" className="navbar__icon-btn">
             <FontAwesomeIcon icon={faCartShopping} />
-          </button>
+          </Link>
           <button aria-label="Profile" className="navbar__icon-btn">
             <FontAwesomeIcon icon={faUser} />
           </button>
