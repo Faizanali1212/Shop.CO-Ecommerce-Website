@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../style/Cart.css";
 import { ChevronRight, Trash2, Minus, Plus, Tag, ArrowRight } from "lucide-react";
 import { useCart } from "../context/useCart.js";
+import { ordersApi } from "../utils/api";
 import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
 
 const DISCOUNT_RATE = 0.2;
@@ -71,6 +72,29 @@ export default function CartPage() {
   const navigate = useNavigate();
   const [updatingId, setUpdatingId] = useState(null);
   const [promoCode, setPromoCode] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    ordersApi.getAll()
+      .then((response) => {
+        if (!isMounted) return;
+        const data = response.data?.orders || response.data;
+        setOrders(Array.isArray(data) ? data : []);
+      })
+      .catch((requestError) => {
+        if (isMounted && requestError.response?.status !== 401) {
+          setOrdersError(requestError.response?.data?.message || "Unable to load previous orders.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setOrdersLoading(false);
+      });
+
+    return () => { isMounted = false; };
+  }, []);
 
   const handleQuantityChange = async (productId, quantity) => {
     setUpdatingId(productId);
@@ -173,6 +197,46 @@ export default function CartPage() {
             </div>
           </div>
         )}
+
+        <section className="order-history" aria-labelledby="order-history-title">
+          <div className="order-history-heading">
+            <div>
+              <p className="order-history-eyebrow">Your account</p>
+              <h2 id="order-history-title">Previous Orders</h2>
+            </div>
+            <button type="button" className="order-history-link" onClick={() => navigate("/orders")}>
+              View all orders
+            </button>
+          </div>
+          {ordersLoading && <p className="order-history-status">Loading your orders...</p>}
+          {ordersError && <p className="order-history-status order-history-status--error" role="alert">{ordersError}</p>}
+          {!ordersLoading && !ordersError && orders.length === 0 && (
+            <p className="order-history-status">No previous orders yet.</p>
+          )}
+          {!ordersLoading && !ordersError && orders.map((order) => (
+            <article className="order-history-card" key={order._id}>
+              <div className="order-history-card__top">
+                <div>
+                  <h3>Order #{order._id}</h3>
+                  <p>{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent order"}</p>
+                </div>
+                <span className="order-status">{order.status || "pending"}</span>
+              </div>
+              <div className="order-history-items">
+                {(order.items || []).map((item, index) => (
+                  <div className="order-history-item" key={item.productId || item._id || index}>
+                    <span>{item.title || item.product?.title || item.product?.ProductTitle || "Product"} x {item.quantity}</span>
+                    <strong>${Number(item.price || item.Price || 0).toFixed(2)}</strong>
+                  </div>
+                ))}
+              </div>
+              <div className="order-history-total">
+                <span>Total</span>
+                <strong>${Number(order.total || 0).toFixed(2)}</strong>
+              </div>
+            </article>
+          ))}
+        </section>
       </div>
     </div>
   );
