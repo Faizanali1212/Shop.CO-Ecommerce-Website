@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../../style/Home.css";
@@ -9,6 +9,7 @@ import {
   faUser,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { useCart } from "../../context/useCart.js";
 
 const NAV_LINKS = [
   { label: "Shop", to: "/" },
@@ -20,8 +21,47 @@ const NAV_LINKS = [
 ];
 
 const Header = () => {
+  // The badge reads from shared cart state so every page stays synchronized.
+  const { itemCount } = useCart();
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [user, setUser] = useState(() => {
+    try {
+      return localStorage.getItem("token")?.trim()
+        ? JSON.parse(localStorage.getItem("shopco_user")) || null
+        : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const updateUser = () => {
+      try {
+        const token = localStorage.getItem("token");
+        setUser(token?.trim() ? JSON.parse(localStorage.getItem("shopco_user")) || null : null);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener("shopco-auth-changed", updateUser);
+    window.addEventListener("storage", updateUser);
+    return () => {
+      window.removeEventListener("shopco-auth-changed", updateUser);
+      window.removeEventListener("storage", updateUser);
+    };
+  }, []);
+
+  const userInitial = (user?.name || user?.email || "U").charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("shopco_user");
+    window.dispatchEvent(new Event("shopco-auth-changed"));
+    setIsProfileMenuOpen(false);
+  };
 
   return (
     <header className="site-header">
@@ -79,12 +119,36 @@ const Header = () => {
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
-          <Link to="/cart" aria-label="Cart" className="navbar__icon-btn">
+          <Link to="/cart" aria-label={`Cart, ${itemCount} items`} className="navbar__icon-btn navbar__cart-link">
             <FontAwesomeIcon icon={faCartShopping} />
+            {itemCount > 0 && <span className="navbar__cart-count">{itemCount}</span>}
           </Link>
-          <button aria-label="Profile" className="navbar__icon-btn">
-            <FontAwesomeIcon icon={faUser} />
-          </button>
+          <div className="navbar__profile">
+            <button
+              type="button"
+              aria-label="Profile"
+              aria-expanded={isProfileMenuOpen}
+              className="navbar__icon-btn navbar__avatar"
+              onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+            >
+              {user ? userInitial : <FontAwesomeIcon icon={faUser} />}
+            </button>
+            {user && isProfileMenuOpen && (
+              <div className="navbar__profile-menu">
+                <span className="navbar__profile-name">
+                  {user.name || user.email}
+                </span>
+                <button type="button" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+          {!user && (
+            <Link to="/signup" className="navbar__signup-link">
+              Sign Up
+            </Link>
+          )}
         </div>
       </nav>
 

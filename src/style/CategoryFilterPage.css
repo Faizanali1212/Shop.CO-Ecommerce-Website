@@ -8,7 +8,7 @@
   --pink-text: #FF3333;
 }
 
-/* Scoped Box-Sizing to avoid breaking global UI */
+
 .page-root,
 .page-root * {
   box-sizing: border-box;
@@ -110,7 +110,7 @@
   align-items: start;
 }
 
-/* ---- Filters card ---- */
+
 .page-root .filters-card {
   background: #fff;
   border: 1px solid var(--border);
@@ -187,7 +187,7 @@
   margin-top: 16px;
 }
 
-/* Price Range */
+
 .page-root .price-range-track {
   position: relative;
   height: 4px;
@@ -251,7 +251,7 @@
   margin-top: 14px;
 }
 
-/* Colors */
+
 .page-root .color-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -268,7 +268,7 @@
   justify-content: center;
 }
 
-/* Size */
+
 .page-root .size-grid {
   display: flex;
   flex-wrap: wrap;
@@ -304,7 +304,7 @@
   cursor: pointer;
 }
 
-/* ---- Product grid ---- */
+
 .page-root .product-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -379,7 +379,7 @@
   border-radius: 999px;
 }
 
-/* ---- Pagination ---- */
+
 .page-root .pagination {
   display: flex;
   align-items: center;
@@ -435,7 +435,7 @@
   padding: 0 4px;
 }
 
-/* ---- Mobile drawer ---- */
+
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -474,7 +474,7 @@
   display: block;
 }
 
-/* ---- Responsive ---- */
+
 @media (max-width: 860px) {
   .page-root .layout {
     grid-template-columns: 1fr;

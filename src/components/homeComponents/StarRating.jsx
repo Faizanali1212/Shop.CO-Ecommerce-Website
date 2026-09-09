@@ -3,11 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as faStarSolid, faStarHalfStroke } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
-/**
 
- * @param {number} rating 
- * @param {number} size - 
- */
 const StarRating = ({ rating = 5, size = 16 }) => {
   const stars = [];
 

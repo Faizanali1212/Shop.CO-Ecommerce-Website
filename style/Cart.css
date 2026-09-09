@@ -24,7 +24,7 @@
   padding: 20px 20px 60px;
 }
 
-/* Breadcrumb */
+
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -40,7 +40,7 @@
   font-weight: 600;
 }
 
-/* Heading */
+
 .cart-heading {
   font-size: 32px;
   font-weight: 800;
@@ -49,7 +49,7 @@
   margin: 0 0 24px;
 }
 
-/* Layout */
+
 .cart-layout {
   display: grid;
   grid-template-columns: 1fr 360px;
@@ -57,9 +57,9 @@
   align-items: start;
 }
 
-/* ------------------------------------------------------------------ */
-/* Cart items card                                                     */
-/* ------------------------------------------------------------------ */
+
+
+
 
 .cart-items-card {
   background: #fff;
@@ -188,9 +188,9 @@
   text-align: center;
 }
 
-/* ------------------------------------------------------------------ */
-/* Order summary card                                                  */
-/* ------------------------------------------------------------------ */
+
+
+
 
 .summary-card {
   background: #fff;
@@ -246,7 +246,7 @@
   font-weight: 800;
 }
 
-/* Promo code */
+
 .promo-row {
   display: flex;
   gap: 10px;
@@ -308,7 +308,7 @@
   margin: 4px 0 0;
 }
 
-/* Checkout */
+
 .checkout-btn {
   width: 100%;
   margin-top: 18px;
@@ -333,9 +333,9 @@
   cursor: not-allowed;
 }
 
-/* ------------------------------------------------------------------ */
-/* Responsive                                                          */
-/* ------------------------------------------------------------------ */
+
+
+
 
 @media (max-width: 860px) {
   .cart-layout {
@@ -388,4 +388,17 @@
   .apply-btn {
     padding: 12px;
   }
+}
+
+.cart-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.cart-heading-row .cart-heading { margin-bottom: 0; }
+.clear-cart-btn { border: 1px solid var(--border); border-radius: 999px; background: #fff; padding: 10px 16px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.clear-cart-btn:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.clear-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cart-feedback { margin: 0 0 16px; color: #16803c; font-size: 14px; }
+.cart-feedback--error { color: var(--red); }
+.cart-item-total { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 420px) {
+  .cart-heading-row { align-items: flex-start; flex-direction: column; }
 }

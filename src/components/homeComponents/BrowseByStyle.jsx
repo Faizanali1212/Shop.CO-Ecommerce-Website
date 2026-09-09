@@ -1,8 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../../style/Home.css";
-
-//images grid box;
 import image from  "../../images/image 11.png";
 import image2 from "../../images/image 12.png";
 import image3 from "../../images/image 13.png";

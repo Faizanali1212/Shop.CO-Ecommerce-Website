@@ -16,12 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
 
-/**
- * ==============================================================================
- * STATIC FILTER OPTIONS
- * ==============================================================================
- * Filters sidebar ke static options (Categories, Colors, Sizes, Dress Styles)
- */
+
 const CATEGORIES = ["T-shirts", "Shorts", "Shirts", "Hoodie", "Jeans"];
 const COLORS = [
     "#22C55E", "#EF4444", "#F0C808", "#F97316", "#22D3EE",
@@ -30,39 +25,24 @@ const COLORS = [
 const SIZES = ["XX-Small", "X-Small", "Small", "Medium", "Large", "X-Large", "3X-Large", "4X-Large"];
 const DRESS_STYLES = ["Casual", "Formal", "Party", "Gym"];
 
-/**
- * ==============================================================================
- * CategoryFilterPage Component
- * ==============================================================================
- * YEH PAGE KYA KARTA HAI:
- * 1. Backend se all products fetch karta hai (/api/all-products/).
- * 2. Left side par Filter sidebar (Price range, Colors, Sizes, Styles) render karta hai.
- * 3. Right side par 3-column product grid render karta hai.
- * 4. Har product card par click karne se user product detail page (/product/:id) par jata hai.
- */
+
 export default function CategoryFilterPage() {
-    /* --- 1. Main State Management --- */
+    
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [drawerOpen, setDrawerOpen] = useState(false); // Mobile filter popup drawer
-
-    // Filter States: Active selections
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const [activeColor, setActiveColor] = useState("#3B82F6");
     const [activeSize, setActiveSize] = useState("Large");
-    const [priceValues, setPriceValues] = useState([50, 200]); // Dual range slider [min, max]
-    
-    // Accordion Sections Open/Close state
+    const [priceValues, setPriceValues] = useState([50, 200]);
     const [openSections, setOpenSections] = useState({
         price: true,
         colors: true,
         size: true,
         dressStyle: true,
     });
-
-    // Pagination State: Currently active page number
     const [page, setPage] = useState(1);
 
-    /* --- 2. API Call to Fetch All Products --- */
+    
     useEffect(() => {
         axios
             .get("https://shop-co-ecommerce-backend.vercel.app/api/all-products/")
@@ -76,18 +56,16 @@ export default function CategoryFilterPage() {
             });
     }, []);
 
-    /* --- 3. Filter Accordion Toggle Handler --- */
+    
     const toggleSection = (sectionKey) => {
         setOpenSections((prev) => ({
             ...prev,
             [sectionKey]: !prev[sectionKey],
         }));
     };
-
-    // Range slider track percentage calculation for CSS styling
     const pct = useCallback((v) => ((v - 0) / (250 - 0)) * 100, []);
 
-    /* --- 4. Sidebar / Mobile Drawer UI Renderer --- */
+    
     const renderFiltersCard = (isMobile = false) => (
         <div className="filters-card">
             <div className="filters-head">
@@ -101,7 +79,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Categories List */}
+            {}
             <div className="cat-list">
                 {CATEGORIES.map((c) => (
                     <button key={c} className="cat-item">
@@ -111,7 +89,7 @@ export default function CategoryFilterPage() {
                 ))}
             </div>
 
-            {/* Price Filter Section with Dual Range Sliders */}
+            {}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("price")}>
                     <span>Price</span>
@@ -158,7 +136,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Colors Swatches Section */}
+            {}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("colors")}>
                     <span>Colors</span>
@@ -194,7 +172,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Size Options Section */}
+            {}
             <div className="filter-section">
                 <button className="filter-section-head" onClick={() => toggleSection("size")}>
                     <span>Size</span>
@@ -217,7 +195,7 @@ export default function CategoryFilterPage() {
                 )}
             </div>
 
-            {/* Dress Style Section */}
+            {}
             <div className="filter-section no-divider">
                 <button className="filter-section-head" onClick={() => toggleSection("dressStyle")}>
                     <span>Dress Style</span>
@@ -244,13 +222,13 @@ export default function CategoryFilterPage() {
     return (
         <div className="page-root">
             <div className="container">
-                {/* Breadcrumb */}
+                {}
                 <div className="breadcrumb">
                     Home <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: "11px" }} />{" "}
                     <span className="current">Casual</span>
                 </div>
 
-                {/* Header Row: Title, Filter button on mobile, sorting selector */}
+                {}
                 <div className="header-row">
                     <div className="title-wrap">
                         <h1>Casual</h1>
@@ -279,19 +257,18 @@ export default function CategoryFilterPage() {
                     </div>
                 </div>
 
-                {/* Main Grid Layout: Desktop Sidebar + Products Grid */}
+                {}
                 <div className="layout">
-                    {/* Desktop Sidebar */}
+                    {}
                     <aside className="sidebar-desktop">{renderFiltersCard(false)}</aside>
 
-                    {/* Product Grid Area */}
+                    {}
                     <main className="grid-wrap">
                         {loading ? (
                             <div style={{ padding: "40px", textAlign: "center" }}>Loading products...</div>
                         ) : (
                             <div className="product-grid">
                                 {products.map((p, index) => {
-                                    // Schema Extraction with Fallbacks
                                     const id = p.id ?? p._id ?? index;
                                     const title = p.ProductTitle || p.title || p.name || "Product";
                                     const price = p.Price ?? p.price ?? 0;
@@ -304,14 +281,13 @@ export default function CategoryFilterPage() {
                                     const imgUrl = getProductImageUrl(imgPath);
 
                                     return (
-                                        // Product Card Link to /product/:id
                                         <Link
                                             to={`/product/${id}`}
                                             key={p._id || p.id || index}
                                             style={{ textDecoration: "none", color: "inherit" }}
                                         >
                                             <div className="product-card">
-                                                {/* Image Box */}
+                                                {}
                                                 <div className="product-image">
                                                     <img
                                                         src={imgUrl}
@@ -323,10 +299,10 @@ export default function CategoryFilterPage() {
                                                     />
                                                 </div>
 
-                                                {/* Product Name */}
+                                                {}
                                                 <h4 className="product-name">{title}</h4>
 
-                                                {/* Stars Rating Row */}
+                                                {}
                                                 <div className="stars">
                                                     {[1, 2, 3, 4, 5].map((starIdx) => (
                                                         <FontAwesomeIcon
@@ -346,7 +322,7 @@ export default function CategoryFilterPage() {
                                                     </span>
                                                 </div>
 
-                                                {/* Price Row */}
+                                                {}
                                                 <div className="price-row">
                                                     <span className="price-current">${price}</span>
                                                     {p.originalPrice && (
@@ -365,7 +341,7 @@ export default function CategoryFilterPage() {
                             </div>
                         )}
 
-                        {/* Pagination Bar */}
+                        {}
                         <div className="pagination">
                             <button
                                 className="page-nav"
@@ -400,7 +376,7 @@ export default function CategoryFilterPage() {
                 </div>
             </div>
 
-            {/* Mobile Drawer Filter Popup */}
+            {}
             {drawerOpen && (
                 <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
                     <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>

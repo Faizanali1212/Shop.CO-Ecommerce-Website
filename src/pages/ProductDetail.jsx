@@ -8,37 +8,24 @@ import {
   faChevronRight,
   faCircleCheck,
   faEllipsis,
-  faMinus,
-  faPlus,
   faSliders,
   faStar as faStarSolid,
 } from "@fortawesome/free-solid-svg-icons";
 import "../style/productDetail.css";
 import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
-
-/* ==========================================================================
-   1. FALLBACK DATA CONFIGURATION (Agar backend se koi field na aaye)
-   ========================================================================== */
-
-// Fallback gallery images agar kisi product ki images array empty ho
+import { useCart } from "../context/useCart.js";
 const fallbackGallery = [
   "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80",
   "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=80",
   "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80",
 ];
-
-// Fallback Colors
 const defaultColors = [
   { name: "Olive", value: "#5C5F3A" },
   { name: "Navy", value: "#1B2A34" },
   { name: "Tan", value: "#C2B299" },
   { name: "Cream", value: "#E6E0D6" },
 ];
-
-// Fallback Sizes
 const defaultSizes = ["Small", "Medium", "Large", "X-Large"];
-
-// Mock Customer Reviews (Rating & Reviews tab ke liye)
 const mockReviews = [
   {
     id: 1,
@@ -78,55 +65,31 @@ const mockReviews = [
   },
 ];
 
-/* ==========================================================================
-   2. MAIN PRODUCT DETAIL COMPONENT
-   ========================================================================== */
+
 const ProductDetailPage = () => {
-  // useParams() URL path '/product/:id' se id nikaalta hai (e.g. '1' ya MongoDB '_id')
   const { id } = useParams();
-
-  /* ---------------- States ---------------- */
-  // Backend se fetch hone wala single product object
   const [product, setProduct] = useState(null);
-
-  // Gallery mein currently selected image index (0 = pehli image, 1 = doosri, etc.)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-  // Selected color & size
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-
-  // Product quantity counter (default 1)
-  const [quantity, setQuantity] = useState(1);
-
-  // Active tab state: 'details' | 'reviews' | 'faqs'
   const [activeTab, setActiveTab] = useState("reviews");
-
-  // Loading state
   const [loading, setLoading] = useState(true);
+  const [cartMessage, setCartMessage] = useState("");
+  const { addToCart, error: cartError } = useCart();
 
-  /* ---------------- API Call ---------------- */
-  /**
-   * USEEFFECT LOGIC:
-   * Jab bhi URL parameter 'id' change ho, yeh backend endpoint:
-   * 'https://shop-co-ecommerce-backend.vercel.app/api/products/${id}'
-   * ko call karke specific product ki details le aata hai.
-   */
+  
+  
   useEffect(() => {
     axios
       .get(`https://shop-co-ecommerce-backend.vercel.app/api/products/${id}`)
       .then((res) => {
         const data = res.data;
         setProduct(data);
-
-        // Agar product ke paas colors array ho toh pehla color select karo, warna default
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(data.colors[0].name || data.colors[0]);
         } else {
           setSelectedColor(defaultColors[0].name);
         }
-
-        // Agar product ke paas sizes array ho toh pehla size select karo, warna "Medium"
         if (data.sizes && data.sizes.length > 0) {
           setSelectedSize(data.sizes[0]);
         } else {
@@ -140,37 +103,12 @@ const ProductDetailPage = () => {
         setLoading(false);
       });
   }, [id]);
-
-  /* ---------------- Quantity Handler ---------------- */
-  // Quantity barhane (+) ya ghatane (-) ka handler (1 se kam nahi hone dega)
-  const handleQuantityChange = (type) => {
-    if (type === "increase") {
-      setQuantity(quantity + 1);
-    } else if (type === "decrease" && quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-
-  /* ---------------- Schema Field Extraction & Fallbacks ---------------- */
-  // 1. Title: MongoDB field 'ProductTitle', fallback 'title' / 'name'
   const productTitle = product?.ProductTitle || product?.title || product?.name || "Product";
-
-  // 2. Price: MongoDB field 'Price', fallback 'price'
   const productPrice = product?.Price ?? product?.price ?? 0;
-
-  // 3. Rating: MongoDB field 'rating', fallback 4.5
   const productRating = Number(product?.rating ?? 4.5);
-
-  // 4. Main Single Image
   const primaryImage = product?.Image || product?.image || "";
 
-  /**
-   * GALLERY IMAGES LOGIC:
-   * Backend se 'images' array aata hai (multiple images).
-   * 1. Agar 'product.images' array mojood aur non-empty ho, toh usko use karo.
-   * 2. Agar na ho lekin single 'Image' ho, toh usko 1-element array bana do [primaryImage].
-   * 3. Agar woh bhi na ho, toh fallbackGallery use karo.
-   */
+  
   const displayImages =
     Array.isArray(product?.images) && product.images.length > 0
       ? product.images
@@ -178,22 +116,17 @@ const ProductDetailPage = () => {
       ? [primaryImage]
       : fallbackGallery;
 
-  /* ---------------- Add to Cart Handler ---------------- */
-  const handleAddToCart = () => {
-    const item = {
-      productId: product?.id || product?._id,
-      name: productTitle,
-      price: productPrice,
-      image: getProductImageUrl(displayImages[0]),
-      color: selectedColor,
-      size: selectedSize,
-      quantity: quantity,
-    };
-    console.log("Cart item payload:", item);
-    alert(`${productTitle} added to cart!`);
+  
+  const handleAddToCart = async () => {
+    // Add one item here; quantity changes are handled on the cart page.
+    const added = await addToCart(product, 1);
+    if (added) {
+      setCartMessage(`${productTitle} added to cart.`);
+      window.setTimeout(() => setCartMessage(""), 2500);
+    }
   };
 
-  /* ---------------- Star Rating Helper ---------------- */
+  
   const renderStars = (rating = 5) => {
     return [1, 2, 3, 4, 5].map((starIndex) => (
       <FontAwesomeIcon
@@ -217,7 +150,7 @@ const ProductDetailPage = () => {
 
   return (
     <div className="pdp">
-      {/* Breadcrumb Navigation */}
+      {}
       <nav className="pdp__breadcrumb" aria-label="Breadcrumb navigation">
         <span>Home</span>
         <FontAwesomeIcon icon={faChevronRight} />
@@ -228,11 +161,11 @@ const ProductDetailPage = () => {
         <span className="pdp__breadcrumb-current">T-Shirts</span>
       </nav>
 
-      {/* Main Product Section */}
+      {}
       <section className="pdp__overview">
-        {/* Gallery: Left side thumbnails and main selected image */}
+        {}
         <div className="pdp__gallery">
-          {/* Thumbnails list */}
+          {}
           <div className="pdp__thumbs">
             {displayImages.map((image, index) => (
               <button
@@ -253,7 +186,7 @@ const ProductDetailPage = () => {
             ))}
           </div>
 
-          {/* Main big preview image */}
+          {}
           <div className="pdp__main-image">
             <img
               src={getProductImageUrl(displayImages[selectedImageIndex] || displayImages[0])}
@@ -266,11 +199,11 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Info: Title, Stars, Price, Description, Color/Size options */}
+        {}
         <div className="pdp__info">
           <h1 className="pdp__title">{productTitle}</h1>
 
-          {/* Rating */}
+          {}
           <div className="pdp__rating-row">
             <div className="pdp__stars">{renderStars(productRating)}</div>
             <span className="pdp__rating-value">
@@ -278,7 +211,7 @@ const ProductDetailPage = () => {
             </span>
           </div>
 
-          {/* Price */}
+          {}
           <div className="pdp__price-row">
             <span className="pdp__price">${productPrice}</span>
             {product.originalPrice && (
@@ -291,7 +224,7 @@ const ProductDetailPage = () => {
             )}
           </div>
 
-          {/* Description */}
+          {}
           <p className="pdp__description">
             {product.description ||
               "This t-shirt is perfect for any occasion. Crafted from soft fabric for comfort and style."}
@@ -299,7 +232,7 @@ const ProductDetailPage = () => {
 
           <hr className="pdp__divider" />
 
-          {/* Colors Selection */}
+          {}
           <div className="pdp__selector-block">
             <span className="pdp__selector-label">Select Colors</span>
             <div className="pdp__colors">
@@ -326,7 +259,7 @@ const ProductDetailPage = () => {
 
           <hr className="pdp__divider" />
 
-          {/* Sizes Selection */}
+          {}
           <div className="pdp__selector-block">
             <span className="pdp__selector-label">Choose Size</span>
             <div className="pdp__sizes">
@@ -345,26 +278,18 @@ const ProductDetailPage = () => {
 
           <hr className="pdp__divider" />
 
-          {/* Action Row: Quantity counter + Add to Cart button */}
+          {}
           <div className="pdp__action-row">
-            <div className="pdp__qty-selector">
-              <button type="button" onClick={() => handleQuantityChange("decrease")}>
-                <FontAwesomeIcon icon={faMinus} />
-              </button>
-              <span>{quantity}</span>
-              <button type="button" onClick={() => handleQuantityChange("increase")}>
-                <FontAwesomeIcon icon={faPlus} />
-              </button>
-            </div>
-
             <button type="button" className="pdp__add-to-cart" onClick={handleAddToCart}>
               Add to Cart
             </button>
           </div>
+          {cartMessage && <p className="pdp__cart-message" role="status">{cartMessage}</p>}
+          {cartError && <p className="pdp__cart-message pdp__cart-message--error" role="alert">{cartError}</p>}
         </div>
       </section>
 
-      {/* Tabs Navigation (Details, Reviews, FAQs) */}
+      {}
       <div className="pdp__tabs">
         {[
           { id: "details", label: "Product Details" },
@@ -382,7 +307,7 @@ const ProductDetailPage = () => {
         ))}
       </div>
 
-      {/* Tab 1: Details Content */}
+      {}
       {activeTab === "details" && (
         <section className="pdp__tab-panel">
           <p className="pdp__tab-copy">
@@ -391,7 +316,7 @@ const ProductDetailPage = () => {
         </section>
       )}
 
-      {/* Tab 2: Reviews Content */}
+      {}
       {activeTab === "reviews" && (
         <section className="pdp__reviews-panel">
           <div className="pdp__reviews-header">
@@ -400,18 +325,18 @@ const ProductDetailPage = () => {
             </h2>
 
             <div className="pdp__reviews-actions">
-              {/* Filter Slider Icon Button */}
+              {}
               <button type="button" className="pdp__icon-btn" aria-label="Filter reviews">
                 <FontAwesomeIcon icon={faSliders} />
               </button>
 
-              {/* Dropdown Button */}
+              {}
               <button type="button" className="pdp__dropdown-btn">
                 Latest
                 <FontAwesomeIcon icon={faChevronDown} />
               </button>
 
-              {/* Write Review Button */}
+              {}
               <button type="button" className="pdp__write-review-btn">
                 Write a Review
               </button>
@@ -451,7 +376,7 @@ const ProductDetailPage = () => {
         </section>
       )}
 
-      {/* Tab 3: FAQs Content */}
+      {}
       {activeTab === "faqs" && (
         <section className="pdp__tab-panel">
           <p className="pdp__tab-copy">Q: What is the fabric composition? A: Premium 100% Cotton blend.</p>

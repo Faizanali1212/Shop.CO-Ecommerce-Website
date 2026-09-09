@@ -55,7 +55,6 @@ const Footer = () => {
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (!email) return;
-    // Hook up to newsletter API later
     setSubscribed(true);
     setEmail("");
   };
