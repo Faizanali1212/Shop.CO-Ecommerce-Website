@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "https://shop-co-ecommerce-backend.vercel.app";
 
 // Normalize tokens so requests always send exactly one Bearer prefix.
 export const getAuthToken = () => {
@@ -28,6 +29,7 @@ apiClient.interceptors.response.use(
     // A 401 means the saved session is no longer valid.
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       localStorage.removeItem("shopco_user");
       window.dispatchEvent(new Event("shopco-auth-changed"));
     }
@@ -42,6 +44,16 @@ export const cartApi = {
   update: (productId, quantity) => apiClient.put(`/api/cart/${productId}`, { quantity }),
   remove: (productId) => apiClient.delete(`/api/cart/${productId}`),
   clear: () => apiClient.delete("/api/cart"),
+};
+
+export const loginUser = async (email, password) => {
+  const response = await apiClient.post("/api/login", { email, password });
+  const data = response.data?.data ?? response.data;
+  return {
+    token: data?.token,
+    user: data?.user,
+    message: data?.message,
+  };
 };
 
 export const checkoutApi = {

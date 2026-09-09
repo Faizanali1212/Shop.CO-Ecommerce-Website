@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../style/auth.css";
-import { API_BASE_URL } from "../utils/api";
+import { loginUser } from "../utils/api";
 
 const getLoginError = (requestError) => {
   const responseData = requestError.response?.data;
@@ -46,22 +45,23 @@ const LoginPage = () => {
     };
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/login/login`,
-        loginData,
-        { headers: { "Content-Type": "application/json" } },
-      );
-      const token = response.data?.token || response.data?.data?.token;
+      const response = await loginUser(loginData.email, loginData.password);
+      const token = response.token;
       if (!token) {
         throw new Error("Login succeeded but the backend did not return an auth token.");
       }
-      const user = response.data?.user || loginData;
+      const user = response.user || loginData;
       localStorage.setItem("token", token.trim());
+      localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("shopco_user", JSON.stringify(user));
       window.dispatchEvent(new Event("shopco-auth-changed"));
+      if (user?.role === "admin") {
+        window.location.href = "https://shop-co-admin-red.vercel.app";
+        return;
+      }
       navigate("/");
       setSubmitted(true);
-      setError(response.data?.message || "");
+      setError(response.message || "");
     } catch (requestError) {
       console.error("Login request failed", {
         status: requestError.response?.status,

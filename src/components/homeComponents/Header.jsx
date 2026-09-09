@@ -58,6 +58,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("shopco_user");
     window.dispatchEvent(new Event("shopco-auth-changed"));
     setIsProfileMenuOpen(false);
