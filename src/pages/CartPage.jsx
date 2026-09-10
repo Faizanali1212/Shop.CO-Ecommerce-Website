@@ -28,7 +28,7 @@ const getOrderProductId = (item) => {
   if (item?.product && typeof item.product === "object") {
     return item.product._id || item.product.id || item.product.productId;
   }
-  return item?.productId || item?.product_id || item?.productID || item?.ProductId || item?.id || item?._id;
+  return item?.productId || item?.product_id || item?.productID || item?.ProductId || item?.id || item?._id || (typeof item?.product === "string" ? item.product : "");
 };
 
 const getProductImage = (product) => product?.Image || product?.image || product?.images?.[0] || "";
@@ -109,6 +109,7 @@ export default function CartPage() {
         const loadedOrders = Array.isArray(data) ? data : [];
         setOrders(loadedOrders);
         const catalogResponses = await Promise.allSettled([
+          productsApi.getAll(),
           productsApi.getNewArrivals(),
           productsApi.getTopSelling(),
         ]);
