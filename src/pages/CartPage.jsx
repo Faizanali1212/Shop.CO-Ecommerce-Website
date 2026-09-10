@@ -23,12 +23,17 @@ const getOrderItemRawImage = (item) => {
     item?.Image ||
     item?.imageUrl ||
     item?.ImageUrl ||
+    item?.productImage ||
+    item?.ProductImage ||
     item?.productId?.image ||
     item?.productId?.Image ||
     item?.productId?.imageUrl ||
+    item?.productId?.productImage ||
     item?.product?.image ||
     item?.product?.Image ||
     item?.product?.imageUrl ||
+    item?.product?.productImage ||
+    item?.product?.ProductImage ||
     (Array.isArray(item?.product?.images) && item?.product?.images[0]) ||
     (Array.isArray(item?.images) && item?.images[0]);
 
@@ -74,7 +79,20 @@ const getOrderProductId = (item) => {
   return item?.productId || item?.product_id || item?.productID || item?.ProductId || item?.id || item?._id || (typeof item?.product === "string" ? item.product : "");
 };
 
-const getProductImage = (product) => product?.Image || product?.image || product?.images?.[0] || "";
+const getOrderItemTitle = (item) =>
+  item?.productName ||
+  item?.productTitle ||
+  item?.title ||
+  item?.name ||
+  item?.product?.ProductTitle ||
+  item?.product?.title ||
+  item?.product?.name ||
+  item?.productId?.ProductTitle ||
+  item?.productId?.title ||
+  item?.productId?.name ||
+  "";
+
+const normalizeTitle = (title) => String(title || "").trim().toLowerCase().replace(/\s+/g, " ");
 
 function CartItem({ item, onRemove, onQtyChange, isUpdating }) {
   return (
@@ -171,7 +189,7 @@ export default function CartPage() {
 
         await Promise.all(missingImageItems.map(async ({ item, productId }) => {
           try {
-            const itemTitle = (item.productName || item.productTitle || item.title || item.name || "").trim().toLowerCase();
+            const itemTitle = normalizeTitle(getOrderItemTitle(item));
             const itemPrice = Number(item.price || item.Price || 0);
 
             let product = productId
@@ -189,7 +207,7 @@ export default function CartPage() {
 
             if (!product) {
               product = catalog.find((candidate) => {
-                const candidateTitle = (candidate.ProductTitle || candidate.title || candidate.name || "").trim().toLowerCase();
+                const candidateTitle = normalizeTitle(candidate.ProductTitle || candidate.title || candidate.name || candidate.productName);
                 const candidatePrice = Number(candidate.Price || candidate.price || 0);
                 if (itemTitle && candidateTitle) {
                   if (candidateTitle === itemTitle || candidateTitle.includes(itemTitle) || itemTitle.includes(candidateTitle)) {
@@ -204,7 +222,7 @@ export default function CartPage() {
             }
 
             if (product) {
-              const image = product.Image || product.image || product.imageUrl || (Array.isArray(product.images) && product.images[0]) || "";
+              const image = product.Image || product.image || product.imageUrl || product.productImage || product.ProductImage || (Array.isArray(product.images) && product.images[0]) || "";
               if (image) {
                 item.image = image;
                 item.imageUrl = image;
