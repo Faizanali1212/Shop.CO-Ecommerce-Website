@@ -1,5 +1,5 @@
 export const BACKEND_URL = "https://shop-co-ecommerce-backend.vercel.app";
-export const PLACEHOLDER_IMAGE = "/placeholder.png";
+export const PLACEHOLDER_IMAGE = "https://placehold.co/100x100?text=No+Image";
 
 
 export function getProductImageUrl(rawImage) {

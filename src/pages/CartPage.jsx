@@ -11,14 +11,49 @@ const DELIVERY_FEE = 15;
 const ORDER_IMAGE_CACHE_KEY = "shopco_order_images";
 
 const getOrderItemImage = (item) => {
-  const directImage = item?.image || item?.Image || item?.product?.image || item?.product?.Image || item?.product?.images?.[0];
-  if (directImage) return directImage;
-  try {
-    const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
-    return cachedImages[item?.productId] || "";
-  } catch {
-    return "";
+  const directImage =
+    item?.image ||
+    item?.Image ||
+    item?.imageUrl ||
+    item?.ImageUrl ||
+    item?.productId?.image ||
+    item?.productId?.Image ||
+    item?.productId?.imageUrl ||
+    item?.product?.image ||
+    item?.product?.Image ||
+    item?.product?.imageUrl ||
+    item?.product?.images?.[0];
+
+  let raw = directImage;
+  if (!raw) {
+    try {
+      const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
+      raw = cachedImages[getOrderProductId(item)] || "";
+    } catch {
+      raw = "";
+    }
   }
+
+  if (!raw || typeof raw !== "string") {
+    return "https://placehold.co/100x100?text=No+Image";
+  }
+
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return "https://placehold.co/100x100?text=No+Image";
+  }
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
+    return trimmed;
+  }
+
+  // If it's a relative path starting with /images/ or images/ or uploads/
+  if (trimmed.startsWith("/images/") || trimmed.startsWith("images/")) {
+    const clean = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return `${window.location.origin}${clean}`;
+  }
+
+  return getProductImageUrl(trimmed);
 };
 
 const getOrderProductId = (item) => {
@@ -288,23 +323,39 @@ export default function CartPage() {
                 <span className="order-status">{order.status || "pending"}</span>
               </div>
               <div className="order-history-items">
-                {(order.items || []).map((item, index) => (
-                  <div className="order-history-item" key={item.productId || item._id || index}>
-                    <div className="order-history-item__product">
-                      <img
-                        src={getProductImageUrl(getOrderItemImage(item))}
-                        alt={item.title || item.product?.title || item.product?.ProductTitle || "Product"}
-                        className="order-history-item__image"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = PLACEHOLDER_IMAGE;
-                        }}
-                      />
-                      <span>{item.title || item.product?.title || item.product?.ProductTitle || "Product"} x {item.quantity}</span>
+                {(order.items || []).map((item, index) => {
+                  console.log("Order Item:", item);
+                  const itemName =
+                    item.productName ||
+                    item.productTitle ||
+                    item.title ||
+                    item.product?.title ||
+                    item.product?.ProductTitle ||
+                    item.productId?.title ||
+                    item.productId?.ProductTitle ||
+                    "Product";
+                  const resolvedImage = getOrderItemImage(item);
+
+                  return (
+                    <div className="order-history-item" key={item.productId || item._id || index}>
+                      <div className="order-history-item__product">
+                        <img
+                          src={resolvedImage}
+                          alt={itemName}
+                          className="order-history-item__image"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "https://placehold.co/100x100?text=No+Image";
+                          }}
+                        />
+                        <span>
+                          {itemName} x {item.quantity}
+                        </span>
+                      </div>
+                      <strong>${Number(item.price || item.Price || 0).toFixed(2)}</strong>
                     </div>
-                    <strong>${Number(item.price || item.Price || 0).toFixed(2)}</strong>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="order-history-total">
                 <span>Total</span>
