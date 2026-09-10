@@ -429,6 +429,29 @@
 .order-history-card__top h3, .order-history-card__top p { margin: 0; }
 .order-history-card__top h3 { font-size: 15px; }
 .order-history-card__top p { margin-top: 5px; color: var(--muted); font-size: 12px; }
+.order-history-card__actions { display: flex; align-items: center; gap: 10px; }
+.order-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #fed7d7;
+  background: #fff5f5;
+  color: #e53e3e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.order-delete-btn:hover {
+  background: #e53e3e;
+  color: #ffffff;
+  border-color: #e53e3e;
+}
+.order-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .order-status { padding: 6px 10px; border-radius: 999px; background: #f0f0f0; font-size: 12px; font-weight: 700; text-transform: capitalize; }
 .order-history-items { margin-top: 14px; border-top: 1px solid var(--border); }
 .order-history-item { padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 13px; }

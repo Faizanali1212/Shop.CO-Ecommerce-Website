@@ -66,6 +66,7 @@ export const checkoutApi = {
 export const ordersApi = {
   getAll: () => apiClient.get("/api/orders"),
   getById: (orderId) => apiClient.get(`/api/orders/${orderId}`),
+  delete: (orderId) => apiClient.delete(`/api/orders/${orderId}`),
 };
 
 export const productsApi = {

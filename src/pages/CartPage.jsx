@@ -10,7 +10,14 @@ const DISCOUNT_RATE = 0.2;
 const DELIVERY_FEE = 15;
 const ORDER_IMAGE_CACHE_KEY = "shopco_order_images";
 
-const getOrderItemImage = (item) => {
+const hasValidImage = (img) => {
+  if (!img || typeof img !== "string") return false;
+  const trimmed = img.trim();
+  if (!trimmed || trimmed.includes("placehold.co") || trimmed === "/placeholder.png") return false;
+  return true;
+};
+
+const getOrderItemRawImage = (item) => {
   const directImage =
     item?.image ||
     item?.Image ||
@@ -22,38 +29,39 @@ const getOrderItemImage = (item) => {
     item?.product?.image ||
     item?.product?.Image ||
     item?.product?.imageUrl ||
-    item?.product?.images?.[0];
+    (Array.isArray(item?.product?.images) && item?.product?.images[0]) ||
+    (Array.isArray(item?.images) && item?.images[0]);
 
-  let raw = directImage;
+  if (hasValidImage(directImage)) return directImage.trim();
+
+  try {
+    const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
+    const cached = cachedImages[getOrderProductId(item)] || "";
+    if (hasValidImage(cached)) return cached.trim();
+  } catch {
+    // ignore
+  }
+
+  return "";
+};
+
+const getOrderItemImage = (item) => {
+  const raw = getOrderItemRawImage(item);
   if (!raw) {
-    try {
-      const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
-      raw = cachedImages[getOrderProductId(item)] || "";
-    } catch {
-      raw = "";
-    }
-  }
-
-  if (!raw || typeof raw !== "string") {
     return "https://placehold.co/100x100?text=No+Image";
   }
 
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return "https://placehold.co/100x100?text=No+Image";
+  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) {
+    return raw;
   }
 
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
-    return trimmed;
-  }
-
-  // If it's a relative path starting with /images/ or images/ or uploads/
-  if (trimmed.startsWith("/images/") || trimmed.startsWith("images/")) {
-    const clean = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  // If it's a relative path starting with /images/ or images/
+  if (raw.startsWith("/images/") || raw.startsWith("images/")) {
+    const clean = raw.startsWith("/") ? raw : `/${raw}`;
     return `${window.location.origin}${clean}`;
   }
 
-  return getProductImageUrl(trimmed);
+  return getProductImageUrl(raw);
 };
 
 const getOrderProductId = (item) => {
@@ -135,6 +143,8 @@ export default function CartPage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState("");
 
+  const [deletingOrderId, setDeletingOrderId] = useState(null);
+
   useEffect(() => {
     let isMounted = true;
     ordersApi.getAll()
@@ -143,6 +153,7 @@ export default function CartPage() {
         const data = response.data?.orders || response.data;
         const loadedOrders = Array.isArray(data) ? data : [];
         setOrders(loadedOrders);
+
         const catalogResponses = await Promise.allSettled([
           productsApi.getAll(),
           productsApi.getNewArrivals(),
@@ -153,30 +164,58 @@ export default function CartPage() {
           const value = result.value.data?.products || result.value.data;
           return Array.isArray(value) ? value : [];
         });
+
         const missingImageItems = loadedOrders.flatMap((order) => (order.items || [])
-          .filter((item) => !getOrderItemImage(item))
-          .map((item) => ({ item, productId: getOrderProductId(item) }))
-          .filter(({ item, productId }) => productId || item?.title || item?.price || item?.Price));
+          .filter((item) => !hasValidImage(getOrderItemRawImage(item)))
+          .map((item) => ({ item, productId: getOrderProductId(item) })));
+
         await Promise.all(missingImageItems.map(async ({ item, productId }) => {
           try {
+            const itemTitle = (item.productName || item.productTitle || item.title || item.name || "").trim().toLowerCase();
+            const itemPrice = Number(item.price || item.Price || 0);
+
             let product = productId
               ? catalog.find((candidate) => String(candidate._id) === String(productId) || String(candidate.id) === String(productId))
               : null;
+
             if (!product && productId) {
-              const productResponse = await productsApi.getById(productId);
-              product = productResponse.data?.product || productResponse.data;
+              try {
+                const productResponse = await productsApi.getById(productId);
+                product = productResponse.data?.product || productResponse.data;
+              } catch {
+                // ignore
+              }
             }
+
             if (!product) {
               product = catalog.find((candidate) => {
-                const candidateTitle = candidate.ProductTitle || candidate.title || candidate.name;
-                const itemTitle = item.title || item.ProductTitle || item.name;
-                return (itemTitle && candidateTitle === itemTitle) || (Number(item.price || item.Price) === Number(candidate.Price || candidate.price));
+                const candidateTitle = (candidate.ProductTitle || candidate.title || candidate.name || "").trim().toLowerCase();
+                const candidatePrice = Number(candidate.Price || candidate.price || 0);
+                if (itemTitle && candidateTitle) {
+                  if (candidateTitle === itemTitle || candidateTitle.includes(itemTitle) || itemTitle.includes(candidateTitle)) {
+                    return true;
+                  }
+                }
+                if (itemPrice > 0 && Math.abs(candidatePrice - itemPrice) < 0.01) {
+                  return true;
+                }
+                return false;
               });
             }
-            const image = getProductImage(product);
-            if (image) {
-              item.image = image;
-              item.title = item.title || product.ProductTitle || product.title || product.name;
+
+            if (product) {
+              const image = product.Image || product.image || product.imageUrl || (Array.isArray(product.images) && product.images[0]) || "";
+              if (image) {
+                item.image = image;
+                item.imageUrl = image;
+                item.Image = image;
+              }
+              const title = product.ProductTitle || product.title || product.name || "";
+              if (title && (!item.title || item.title === "Product")) {
+                item.title = title;
+                item.productName = title;
+                item.productTitle = title;
+              }
             }
           } catch {
             // Keep the placeholder when an old product is no longer available.
@@ -195,6 +234,22 @@ export default function CartPage() {
 
     return () => { isMounted = false; };
   }, []);
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!orderId) return;
+    const isConfirmed = window.confirm("Are you sure you want to delete this order?");
+    if (!isConfirmed) return;
+
+    try {
+      setDeletingOrderId(orderId);
+      await ordersApi.delete(orderId);
+      setOrders((prev) => prev.filter((order) => order._id !== orderId));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete order.");
+    } finally {
+      setDeletingOrderId(null);
+    }
+  };
 
   const handleQuantityChange = async (productId, quantity) => {
     setUpdatingId(productId);
@@ -320,7 +375,19 @@ export default function CartPage() {
                   <h3>Order #{order._id}</h3>
                   <p>{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent order"}</p>
                 </div>
-                <span className="order-status">{order.status || "pending"}</span>
+                <div className="order-history-card__actions">
+                  <span className="order-status">{order.status || order.orderStatus || "pending"}</span>
+                  <button
+                    type="button"
+                    className="order-delete-btn"
+                    onClick={() => handleDeleteOrder(order._id)}
+                    disabled={deletingOrderId === order._id}
+                    title="Delete order"
+                    aria-label={`Delete order ${order._id}`}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
               <div className="order-history-items">
                 {(order.items || []).map((item, index) => {
