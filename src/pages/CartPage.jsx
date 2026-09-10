@@ -23,10 +23,15 @@ const getOrderItemImage = (item) => {
 
 const getOrderProductId = (item) => {
   if (item?.productId && typeof item.productId === "object") {
-    return item.productId._id || item.productId.id;
+    return item.productId._id || item.productId.id || item.productId.productId;
   }
-  return item?.productId || item?.product?._id || item?.product?.id;
+  if (item?.product && typeof item.product === "object") {
+    return item.product._id || item.product.id || item.product.productId;
+  }
+  return item?.productId || item?.product_id || item?.productID || item?.ProductId || item?.id || item?._id;
 };
+
+const getProductImage = (product) => product?.Image || product?.image || product?.images?.[0] || "";
 
 function CartItem({ item, onRemove, onQtyChange, isUpdating }) {
   return (
@@ -103,16 +108,40 @@ export default function CartPage() {
         const data = response.data?.orders || response.data;
         const loadedOrders = Array.isArray(data) ? data : [];
         setOrders(loadedOrders);
+        const catalogResponses = await Promise.allSettled([
+          productsApi.getNewArrivals(),
+          productsApi.getTopSelling(),
+        ]);
+        const catalog = catalogResponses.flatMap((result) => {
+          if (result.status !== "fulfilled") return [];
+          const value = result.value.data?.products || result.value.data;
+          return Array.isArray(value) ? value : [];
+        });
         const missingImageItems = loadedOrders.flatMap((order) => (order.items || [])
           .filter((item) => !getOrderItemImage(item))
           .map((item) => ({ item, productId: getOrderProductId(item) }))
-          .filter(({ productId }) => productId));
+          .filter(({ item, productId }) => productId || item?.title || item?.price || item?.Price));
         await Promise.all(missingImageItems.map(async ({ item, productId }) => {
           try {
-            const productResponse = await productsApi.getById(productId);
-            const product = productResponse.data?.product || productResponse.data;
-            const image = product?.Image || product?.image || product?.images?.[0];
-            if (image) item.image = image;
+            let product = productId
+              ? catalog.find((candidate) => String(candidate._id) === String(productId) || String(candidate.id) === String(productId))
+              : null;
+            if (!product && productId) {
+              const productResponse = await productsApi.getById(productId);
+              product = productResponse.data?.product || productResponse.data;
+            }
+            if (!product) {
+              product = catalog.find((candidate) => {
+                const candidateTitle = candidate.ProductTitle || candidate.title || candidate.name;
+                const itemTitle = item.title || item.ProductTitle || item.name;
+                return (itemTitle && candidateTitle === itemTitle) || (Number(item.price || item.Price) === Number(candidate.Price || candidate.price));
+              });
+            }
+            const image = getProductImage(product);
+            if (image) {
+              item.image = image;
+              item.title = item.title || product.ProductTitle || product.title || product.name;
+            }
           } catch {
             // Keep the placeholder when an old product is no longer available.
           }

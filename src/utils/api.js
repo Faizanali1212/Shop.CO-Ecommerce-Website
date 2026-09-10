@@ -70,6 +70,8 @@ export const ordersApi = {
 
 export const productsApi = {
   getById: (productId) => apiClient.get(`/api/products/${productId}`),
+  getNewArrivals: () => apiClient.get("/api/products/new-arrivals"),
+  getTopSelling: () => apiClient.get("/api/products/top-selling"),
 };
 
 export default apiClient;
