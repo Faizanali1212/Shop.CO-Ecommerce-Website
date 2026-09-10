@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../style/Cart.css";
 import { ChevronRight, Trash2, Minus, Plus, Tag, ArrowRight } from "lucide-react";
 import { useCart } from "../context/useCart.js";
-import { ordersApi } from "../utils/api";
+import { ordersApi, productsApi } from "../utils/api";
 import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
 
 const DISCOUNT_RATE = 0.2;
@@ -19,6 +19,13 @@ const getOrderItemImage = (item) => {
   } catch {
     return "";
   }
+};
+
+const getOrderProductId = (item) => {
+  if (item?.productId && typeof item.productId === "object") {
+    return item.productId._id || item.productId.id;
+  }
+  return item?.productId || item?.product?._id || item?.product?.id;
 };
 
 function CartItem({ item, onRemove, onQtyChange, isUpdating }) {
@@ -91,10 +98,26 @@ export default function CartPage() {
   useEffect(() => {
     let isMounted = true;
     ordersApi.getAll()
-      .then((response) => {
+      .then(async (response) => {
         if (!isMounted) return;
         const data = response.data?.orders || response.data;
-        setOrders(Array.isArray(data) ? data : []);
+        const loadedOrders = Array.isArray(data) ? data : [];
+        setOrders(loadedOrders);
+        const missingImageItems = loadedOrders.flatMap((order) => (order.items || [])
+          .filter((item) => !getOrderItemImage(item))
+          .map((item) => ({ item, productId: getOrderProductId(item) }))
+          .filter(({ productId }) => productId));
+        await Promise.all(missingImageItems.map(async ({ item, productId }) => {
+          try {
+            const productResponse = await productsApi.getById(productId);
+            const product = productResponse.data?.product || productResponse.data;
+            const image = product?.Image || product?.image || product?.images?.[0];
+            if (image) item.image = image;
+          } catch {
+            // Keep the placeholder when an old product is no longer available.
+          }
+        }));
+        if (isMounted) setOrders([...loadedOrders]);
       })
       .catch((requestError) => {
         if (isMounted && requestError.response?.status !== 401) {

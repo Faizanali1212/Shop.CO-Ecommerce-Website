@@ -68,4 +68,8 @@ export const ordersApi = {
   getById: (orderId) => apiClient.get(`/api/orders/${orderId}`),
 };
 
+export const productsApi = {
+  getById: (productId) => apiClient.get(`/api/products/${productId}`),
+};
+
 export default apiClient;
