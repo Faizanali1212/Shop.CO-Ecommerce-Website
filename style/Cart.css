@@ -432,5 +432,7 @@
 .order-status { padding: 6px 10px; border-radius: 999px; background: #f0f0f0; font-size: 12px; font-weight: 700; text-transform: capitalize; }
 .order-history-items { margin-top: 14px; border-top: 1px solid var(--border); }
 .order-history-item { padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+.order-history-item__product { display: flex; align-items: center; min-width: 0; gap: 10px; }
+.order-history-item__image { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 8px; background: var(--swatch-bg); object-fit: cover; }
 .order-history-item strong, .order-history-total strong { color: var(--black); }
 .order-history-total { padding-top: 14px; font-size: 15px; font-weight: 700; }

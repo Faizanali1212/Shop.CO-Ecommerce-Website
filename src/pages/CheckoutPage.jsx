@@ -99,7 +99,18 @@ export default function CheckoutPage() {
     if (!/^[+\d][\d\s-]{6,}$/.test(customer.phoneNumber)) { setError("Please enter a valid phone number."); return; }
     setSubmitLoading(true);
     try {
-      const response = await checkoutApi.createOrder({ promoCode: promoCode.trim() || undefined, customer, paymentMethod });
+      const response = await checkoutApi.createOrder({
+        promoCode: promoCode.trim() || undefined,
+        customer,
+        paymentMethod,
+        items: items.map((item) => ({
+          productId: item.productId,
+          title: item.title,
+          price: item.price,
+          image: item.image,
+          quantity: item.quantity,
+        })),
+      });
       const data = responseData(response);
       setOrder(data.order || data);
       await loadCart();

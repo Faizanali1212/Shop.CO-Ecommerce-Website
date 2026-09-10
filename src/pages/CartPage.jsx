@@ -8,6 +8,18 @@ import { getProductImageUrl, PLACEHOLDER_IMAGE } from "../utils/imageUrl";
 
 const DISCOUNT_RATE = 0.2;
 const DELIVERY_FEE = 15;
+const ORDER_IMAGE_CACHE_KEY = "shopco_order_images";
+
+const getOrderItemImage = (item) => {
+  const directImage = item?.image || item?.Image || item?.product?.image || item?.product?.Image || item?.product?.images?.[0];
+  if (directImage) return directImage;
+  try {
+    const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
+    return cachedImages[item?.productId] || "";
+  } catch {
+    return "";
+  }
+};
 
 function CartItem({ item, onRemove, onQtyChange, isUpdating }) {
   return (
@@ -225,7 +237,18 @@ export default function CartPage() {
               <div className="order-history-items">
                 {(order.items || []).map((item, index) => (
                   <div className="order-history-item" key={item.productId || item._id || index}>
-                    <span>{item.title || item.product?.title || item.product?.ProductTitle || "Product"} x {item.quantity}</span>
+                    <div className="order-history-item__product">
+                      <img
+                        src={getProductImageUrl(getOrderItemImage(item))}
+                        alt={item.title || item.product?.title || item.product?.ProductTitle || "Product"}
+                        className="order-history-item__image"
+                        onError={(event) => {
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = PLACEHOLDER_IMAGE;
+                        }}
+                      />
+                      <span>{item.title || item.product?.title || item.product?.ProductTitle || "Product"} x {item.quantity}</span>
+                    </div>
                     <strong>${Number(item.price || item.Price || 0).toFixed(2)}</strong>
                   </div>
                 ))}

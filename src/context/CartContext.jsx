@@ -6,6 +6,19 @@ const CartContext = createContext(null);
 
 // Product IDs can come from either MongoDB or the frontend product shape.
 const getProductId = (product) => product?._id || product?.id;
+const ORDER_IMAGE_CACHE_KEY = "shopco_order_images";
+
+const cacheItemImages = (items) => {
+  try {
+    const cachedImages = JSON.parse(localStorage.getItem(ORDER_IMAGE_CACHE_KEY) || "{}");
+    items.forEach((item) => {
+      if (item.productId && item.image) cachedImages[item.productId] = item.image;
+    });
+    localStorage.setItem(ORDER_IMAGE_CACHE_KEY, JSON.stringify(cachedImages));
+  } catch {
+    // Image caching is only a fallback and must not block cart loading.
+  }
+};
 
 const extractItems = (payload) => {
   const value = payload?.data ?? payload;
@@ -64,7 +77,9 @@ export function CartProvider({ children }) {
     setError("");
     try {
       const response = await cartApi.get();
-      setItems(extractItems(response).map(normalizeItem));
+      const normalizedItems = extractItems(response).map(normalizeItem);
+      setItems(normalizedItems);
+      cacheItemImages(normalizedItems);
     } catch (requestError) {
       if (requestError.response?.status === 401) handleUnauthorized();
       else setError(getErrorMessage(requestError, "Unable to load your cart."));
@@ -95,7 +110,9 @@ export function CartProvider({ children }) {
     try {
       // Every mutation updates state from the backend response.
       const response = await request();
-      setItems(extractItems(response).map(normalizeItem));
+      const normalizedItems = extractItems(response).map(normalizeItem);
+      setItems(normalizedItems);
+      cacheItemImages(normalizedItems);
       setNotice(successMessage);
       window.setTimeout(() => setNotice(""), 2500);
       return true;

@@ -18,6 +18,8 @@
 .checkout-summary { margin-bottom: 20px; }
 .checkout-item, .checkout-total-row { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; font-size: 14px; }
 .checkout-item { color: #555; border-bottom: 1px solid #eee; }
+.order-detail-product { display: flex; align-items: center; gap: 10px; }
+.order-detail-product img { width: 48px; height: 48px; border-radius: 8px; background: #f0eeed; object-fit: cover; }
 .checkout-total-row { margin-top: 4px; }
 .checkout-discount { color: #d33; }
 .checkout-grand-total { margin-top: 12px; padding-top: 18px; border-top: 1px solid #ddd; font-size: 18px; }
